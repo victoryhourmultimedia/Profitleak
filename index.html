@@ -1,290 +1,525 @@
-import React, { useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { BadgeDollarSign, Bot, ClipboardCheck, Download, Lock, Mail, Rocket, ShieldCheck, Sparkles, Zap } from "lucide-react";
-
-export default function ProfitLeakAI() {
-  const [form, setForm] = useState({
-    businessName: "",
-    industry: "",
-    monthlyRevenue: "25000",
-    freelancers: "1800",
-    adminHours: "20",
-    leadHours: "10",
-    designSpend: "300",
-    copySpend: "400",
-    supportHours: "12",
-    bottleneck: "Slow lead follow-up and too much manual admin work",
-    email: ""
-  });
-
-  const [submitted, setSubmitted] = useState(false);
-
-  const update = (key, value) => setForm(prev => ({ ...prev, [key]: value }));
-
-  const results = useMemo(() => {
-    const freelancerSpend = Number(form.freelancers || 0);
-    const design = Number(form.designSpend || 0);
-    const copy = Number(form.copySpend || 0);
-    const admin = Number(form.adminHours || 0);
-    const lead = Number(form.leadHours || 0);
-    const support = Number(form.supportHours || 0);
-
-    const hourlyValue = 35;
-    const laborWaste = (admin + lead + support) * hourlyValue * 4.33;
-    const directWaste = freelancerSpend + design + copy;
-    const estimatedSavings = Math.round((laborWaste * 0.55) + (directWaste * 0.45));
-    const annualSavings = estimatedSavings * 12;
-
-    const score = Math.min(97, Math.max(18, Math.round(
-      35 +
-      Math.min(25, freelancerSpend / 100) +
-      Math.min(18, admin / 2) +
-      Math.min(12, lead) +
-      Math.min(10, support / 2)
-    )));
-
-    const fixes = [];
-    if (lead >= 5) fixes.push("Install instant AI lead response and follow-up automation.");
-    if (admin >= 8) fixes.push("Replace repetitive admin work with AI forms, summaries, and document generation.");
-    if (copy >= 250) fixes.push("Move routine copywriting into an AI content workflow with human approval.");
-    if (design >= 200) fixes.push("Use Canva AI templates for weekly social posts, flyers, and promo assets.");
-    if (support >= 6) fixes.push("Deploy AI customer support triage for FAQs, callbacks, and intake requests.");
-    if (fixes.length === 0) fixes.push("Start with one simple automation: AI intake form + automated email response.");
-
-    return { estimatedSavings, annualSavings, score, fixes };
-  }, [form]);
-
-  const tierCopy = [
-    {
-      name: "Starter",
-      price: "$10.99/mo",
-      desc: "For small businesses that want a quick AI savings scan.",
-      items: ["AI leak score", "Monthly savings estimate", "Basic roadmap", "Tool recommendations"]
-    },
-    {
-      name: "Pro",
-      price: "$79.99/yr",
-      desc: "For owners who want the full money detector report.",
-      items: ["Full automation roadmap", "Downloadable audit report", "Priority action plan", "Quarterly rescans"]
-    },
-    {
-      name: "Done-For-You",
-      price: "Custom",
-      desc: "For businesses that want you to build the automations.",
-      items: ["Workflow buildout", "CRM/email automation", "AI chatbot setup", "Implementation support"]
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="description" content="ProfitLeak AI helps small businesses detect money leaks, freelancer waste, admin bottlenecks, and AI automation opportunities." />
+  <title>ProfitLeak AI™ — Money Detector</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <style>
+    :root {
+      --bg: #020617;
+      --panel: rgba(15, 23, 42, 0.82);
+      --panel-2: rgba(255, 255, 255, 0.07);
+      --border: rgba(255, 255, 255, 0.12);
+      --text: #ffffff;
+      --muted: #cbd5e1;
+      --faint: #94a3b8;
+      --gold: #facc15;
+      --gold-2: #fde68a;
+      --blue: #2563eb;
+      --green: #34d399;
+      --red: #f87171;
+      --shadow: 0 30px 90px rgba(0,0,0,0.42);
+      --radius: 28px;
     }
-  ];
 
-  function downloadReport() {
-    const report = `ProfitLeak AI Report\n\nBusiness: ${form.businessName || "Unnamed Business"}\nIndustry: ${form.industry || "Not specified"}\n\nAI Replacement Score: ${results.score}/100\nEstimated Monthly Savings: $${results.estimatedSavings.toLocaleString()}\nEstimated Annual Savings: $${results.annualSavings.toLocaleString()}\n\nTop Bottleneck:\n${form.bottleneck}\n\nRecommended Fixes:\n${results.fixes.map((f, i) => `${i + 1}. ${f}`).join("\n")}\n\nNext Step: Book an AI audit or upgrade to unlock the full implementation plan.`;
-    const blob = new Blob([report], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "profitleak-ai-report.txt";
-    a.click();
-    URL.revokeObjectURL(url);
-  }
+    * { box-sizing: border-box; }
 
-  return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <section className="relative overflow-hidden px-6 py-16 md:px-12">
-        <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top_right,_#facc15,_transparent_30%),radial-gradient(circle_at_bottom_left,_#2563eb,_transparent_35%)]" />
-        <div className="relative mx-auto grid max-w-7xl gap-10 md:grid-cols-2 md:items-center">
-          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-yellow-400/30 bg-yellow-400/10 px-4 py-2 text-sm text-yellow-200">
-              <BadgeDollarSign size={16} /> AI Money Detector for Small Business
-            </div>
-            <h1 className="text-4xl font-black tracking-tight md:text-6xl">
-              Find the money your business is leaking every month.
-            </h1>
-            <p className="mt-6 max-w-xl text-lg text-slate-300">
-              ProfitLeak AI scans your freelancer spend, admin work, lead response gaps, and support bottlenecks — then shows what AI can replace, automate, or reduce.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button className="rounded-2xl px-6 py-6 text-base font-bold">
-                Start Free Scan <Zap className="ml-2" size={18} />
-              </Button>
-              <Button variant="outline" className="rounded-2xl border-white/20 bg-white/5 px-6 py-6 text-base text-white hover:bg-white/10">
-                View Pricing
-              </Button>
-            </div>
-            <p className="mt-5 text-sm text-slate-400">Built for owners, agencies, clinics, local services, creators, consultants, and operators.</p>
-          </motion.div>
+    html { scroll-behavior: smooth; }
 
-          <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, delay: 0.1 }}>
-            <Card className="rounded-3xl border-white/10 bg-white/10 shadow-2xl backdrop-blur">
-              <CardContent className="p-6">
-                <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-xl font-bold text-white">Live Savings Preview</h2>
-                  <Sparkles className="text-yellow-300" />
-                </div>
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <Metric label="AI Score" value={`${results.score}/100`} />
-                  <Metric label="Monthly Leak" value={`$${results.estimatedSavings.toLocaleString()}`} />
-                  <Metric label="Annual Potential" value={`$${results.annualSavings.toLocaleString()}`} />
-                </div>
-                <div className="mt-6 rounded-2xl bg-slate-950/60 p-5">
-                  <p className="text-sm font-semibold text-yellow-200">Top AI Fix</p>
-                  <p className="mt-2 text-slate-200">{results.fixes[0]}</p>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-      </section>
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(250, 204, 21, 0.22), transparent 34%),
+        radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.28), transparent 38%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
 
-      <section className="mx-auto grid max-w-7xl gap-8 px-6 py-10 md:grid-cols-[1.05fr_0.95fr] md:px-12">
-        <Card className="rounded-3xl border-white/10 bg-white/[0.06]">
-          <CardContent className="p-6 md:p-8">
-            <div className="mb-6 flex items-center gap-3">
-              <ClipboardCheck className="text-yellow-300" />
-              <h2 className="text-2xl font-black text-white">Run Your AI Money Scan</h2>
-            </div>
+    a { color: inherit; text-decoration: none; }
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Business Name" value={form.businessName} onChange={v => update("businessName", v)} placeholder="Example: Windsor Dental Clinic" />
-              <Field label="Industry" value={form.industry} onChange={v => update("industry", v)} placeholder="Retail, clinic, agency, restaurant..." />
-              <Field label="Monthly Revenue" value={form.monthlyRevenue} onChange={v => update("monthlyRevenue", v)} type="number" />
-              <Field label="Monthly Freelancer Spend" value={form.freelancers} onChange={v => update("freelancers", v)} type="number" />
-              <Field label="Admin Hours / Week" value={form.adminHours} onChange={v => update("adminHours", v)} type="number" />
-              <Field label="Lead Follow-up Hours / Week" value={form.leadHours} onChange={v => update("leadHours", v)} type="number" />
-              <Field label="Design Spend / Month" value={form.designSpend} onChange={v => update("designSpend", v)} type="number" />
-              <Field label="Copywriting Spend / Month" value={form.copySpend} onChange={v => update("copySpend", v)} type="number" />
-              <Field label="Support Hours / Week" value={form.supportHours} onChange={v => update("supportHours", v)} type="number" />
-              <Field label="Email for Report" value={form.email} onChange={v => update("email", v)} placeholder="owner@business.com" />
-            </div>
+    .container {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
 
-            <div className="mt-4">
-              <label className="mb-2 block text-sm font-semibold text-slate-200">Biggest Bottleneck</label>
-              <Textarea value={form.bottleneck} onChange={e => update("bottleneck", e.target.value)} className="min-h-28 rounded-2xl border-white/10 bg-slate-900 text-white" />
-            </div>
+    .topbar {
+      margin-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.08);
+      border-radius: 18px;
+      backdrop-filter: blur(18px);
+      position: sticky;
+      top: 12px;
+      z-index: 10;
+    }
 
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Button onClick={() => setSubmitted(true)} className="rounded-2xl px-6 py-6 font-bold">
-                Generate Money Report <Bot className="ml-2" size={18} />
-              </Button>
-              <Button onClick={downloadReport} variant="outline" className="rounded-2xl border-white/20 bg-white/5 px-6 py-6 text-white hover:bg-white/10">
-                Download Report <Download className="ml-2" size={18} />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+    .status { display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: 14px; }
+    .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--green); box-shadow: 0 0 18px var(--green); }
+    .dot.offline { background: var(--red); box-shadow: 0 0 18px var(--red); }
 
-        <div className="space-y-6">
-          <Card className="rounded-3xl border-yellow-400/20 bg-yellow-400/10">
-            <CardContent className="p-6 md:p-8">
-              <h2 className="text-2xl font-black text-white">Your AI Replacement Score</h2>
-              <div className="mt-5 text-7xl font-black text-yellow-300">{results.score}</div>
-              <p className="mt-2 text-slate-300">out of 100</p>
-              <div className="mt-6 h-4 overflow-hidden rounded-full bg-slate-800">
-                <div className="h-full rounded-full bg-yellow-300" style={{ width: `${results.score}%` }} />
-              </div>
-              <p className="mt-5 text-slate-200">
-                Estimated monthly savings: <span className="font-black text-yellow-300">${results.estimatedSavings.toLocaleString()}</span>
-              </p>
-            </CardContent>
-          </Card>
+    .hero {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 42px;
+      align-items: center;
+      padding: 72px 0 46px;
+    }
 
-          <Card className="rounded-3xl border-white/10 bg-white/[0.06]">
-            <CardContent className="p-6 md:p-8">
-              <h3 className="text-xl font-black text-white">Recommended AI Fixes</h3>
-              <div className="mt-5 space-y-3">
-                {results.fixes.map((fix, i) => (
-                  <div key={i} className="flex gap-3 rounded-2xl bg-slate-900/80 p-4 text-slate-200">
-                    <ShieldCheck className="mt-0.5 shrink-0 text-yellow-300" size={18} />
-                    <span>{fix}</span>
-                  </div>
-                ))}
-              </div>
-              {!submitted && (
-                <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/60 p-4 text-sm text-slate-400">
-                  Click “Generate Money Report” to simulate the customer experience.
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </section>
+    .pill {
+      display: inline-flex;
+      gap: 9px;
+      align-items: center;
+      padding: 9px 14px;
+      border: 1px solid rgba(250, 204, 21, 0.32);
+      background: rgba(250, 204, 21, 0.1);
+      color: var(--gold-2);
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 14px;
+    }
 
-      <section className="mx-auto max-w-7xl px-6 py-12 md:px-12">
-        <div className="mb-8 max-w-3xl">
-          <h2 className="text-3xl font-black md:text-4xl">Turn the scan into recurring revenue.</h2>
-          <p className="mt-3 text-slate-300">The free scan creates the pain. The paid plan unlocks the full roadmap, downloads, rescans, and implementation guidance.</p>
-        </div>
-        <div className="grid gap-5 md:grid-cols-3">
-          {tierCopy.map((tier, i) => (
-            <Card key={tier.name} className={`rounded-3xl ${i === 1 ? "border-yellow-400/40 bg-yellow-400/10" : "border-white/10 bg-white/[0.06]"}`}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-2xl font-black text-white">{tier.name}</h3>
-                  {i === 1 && <span className="rounded-full bg-yellow-300 px-3 py-1 text-xs font-black text-slate-950">BEST VALUE</span>}
-                </div>
-                <div className="mt-4 text-4xl font-black text-yellow-300">{tier.price}</div>
-                <p className="mt-3 min-h-12 text-slate-300">{tier.desc}</p>
-                <ul className="mt-5 space-y-3 text-sm text-slate-200">
-                  {tier.items.map(item => (
-                    <li key={item} className="flex gap-2"><Rocket size={16} className="text-yellow-300" /> {item}</li>
-                  ))}
-                </ul>
-                <Button className="mt-6 w-full rounded-2xl py-6 font-bold">
-                  {i === 0 ? "Start Monthly" : i === 1 ? "Unlock Pro" : "Book Buildout"}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
+    h1 {
+      margin: 20px 0 18px;
+      font-size: clamp(42px, 7vw, 76px);
+      line-height: 0.95;
+      letter-spacing: -0.06em;
+    }
 
-      <section className="mx-auto max-w-7xl px-6 pb-16 md:px-12">
-        <Card className="rounded-3xl border-white/10 bg-white/[0.06]">
-          <CardContent className="grid gap-8 p-6 md:grid-cols-2 md:p-8">
-            <div>
-              <h2 className="text-3xl font-black text-white">Subscription Lock Screen</h2>
-              <p className="mt-3 text-slate-300">Use this section after the free scan. Show the customer the savings number, then lock the full roadmap behind the subscription.</p>
-              <div className="mt-6 rounded-2xl border border-yellow-400/20 bg-yellow-400/10 p-5">
-                <div className="flex items-center gap-3 text-yellow-200"><Lock /> Locked Pro Report</div>
-                <p className="mt-3 text-slate-200">Unlock your complete AI automation roadmap, tool stack, cost breakdown, implementation sequence, and downloadable PDF report.</p>
-              </div>
-            </div>
-            <div className="rounded-3xl bg-slate-950/70 p-6">
-              <h3 className="text-xl font-black text-white">Lead Capture CTA</h3>
-              <p className="mt-2 text-sm text-slate-400">This is where Stripe, PayPal, Lemon Squeezy, Gumroad, or Memberstack can connect.</p>
-              <div className="mt-5 space-y-3">
-                <Input placeholder="Email address" className="rounded-2xl border-white/10 bg-slate-900 text-white" />
-                <Button className="w-full rounded-2xl py-6 font-bold">
-                  Email My Free Scan <Mail className="ml-2" size={18} />
-                </Button>
-                <Button variant="outline" className="w-full rounded-2xl border-white/20 bg-white/5 py-6 text-white hover:bg-white/10">
-                  Upgrade to Pro — $79.99/year
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
+    .hero p {
+      color: var(--muted);
+      font-size: 19px;
+      max-width: 630px;
+      margin: 0 0 28px;
+    }
+
+    .buttons { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    button, .button {
+      border: 0;
+      cursor: pointer;
+      border-radius: 18px;
+      padding: 15px 22px;
+      font-weight: 900;
+      font-size: 15px;
+      transition: transform 0.2s ease, background 0.2s ease, border 0.2s ease;
+    }
+
+    button:hover, .button:hover { transform: translateY(-2px); }
+
+    .primary { background: var(--gold); color: #111827; box-shadow: 0 18px 44px rgba(250, 204, 21, 0.20); }
+    .secondary { background: rgba(255,255,255,0.07); color: white; border: 1px solid var(--border); }
+    .ghost { background: transparent; color: white; border: 1px solid var(--border); }
+    .disabled { opacity: 0.45; pointer-events: none; }
+
+    .card {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .preview { padding: 26px; }
+    .card-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 18px; }
+    .card-head h2, .card-head h3 { margin: 0; }
+
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .metric { background: rgba(2, 6, 23, 0.72); border-radius: 20px; padding: 16px; }
+    .metric small { color: var(--faint); display: block; margin-bottom: 7px; }
+    .metric strong { font-size: 25px; color: var(--gold); display: block; }
+
+    .ai-fix {
+      margin-top: 18px;
+      background: rgba(2, 6, 23, 0.62);
+      border-radius: 20px;
+      padding: 18px;
+    }
+    .ai-fix small { color: var(--gold-2); font-weight: 800; }
+    .ai-fix p { margin: 8px 0 0; color: var(--muted); }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 28px;
+      padding: 36px 0;
+    }
+
+    .scan-form { padding: 28px; }
+    .section-title { display: flex; gap: 12px; align-items: center; margin-bottom: 22px; }
+    .section-title h2 { margin: 0; font-size: 28px; letter-spacing: -0.03em; }
+
+    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+    label { display: block; color: #e2e8f0; font-weight: 800; font-size: 14px; margin-bottom: 7px; }
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.95);
+      color: white;
+      border-radius: 16px;
+      padding: 14px 14px;
+      outline: none;
+      font: inherit;
+    }
+    input:focus, textarea:focus, select:focus { border-color: rgba(250, 204, 21, 0.55); box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.08); }
+    textarea { min-height: 118px; resize: vertical; }
+    .full { grid-column: 1 / -1; }
+
+    .result-card { padding: 28px; background: rgba(250, 204, 21, 0.09); border-color: rgba(250, 204, 21, 0.22); }
+    .score { font-size: 78px; font-weight: 1000; color: var(--gold); line-height: 1; margin: 18px 0 4px; letter-spacing: -0.06em; }
+    .bar { height: 14px; background: rgba(15,23,42,0.94); border-radius: 999px; overflow: hidden; margin: 22px 0; }
+    .bar span { display: block; height: 100%; background: var(--gold); width: 0%; border-radius: inherit; transition: width 0.5s ease; }
+    .saving-line { color: var(--muted); font-size: 18px; }
+    .saving-line strong { color: var(--gold); }
+
+    .fixes { margin-top: 22px; padding: 26px; }
+    .fix-item {
+      display: flex;
+      gap: 12px;
+      padding: 15px;
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--muted);
+      margin-top: 11px;
+    }
+    .check { color: var(--gold); font-weight: 1000; }
+
+    .pricing { padding: 42px 0; }
+    .pricing h2, .lock h2, .pwa h2 { font-size: clamp(32px, 4vw, 48px); line-height: 1; margin: 0 0 12px; letter-spacing: -0.05em; }
+    .pricing > p, .lock > p, .pwa > p { color: var(--muted); max-width: 760px; font-size: 18px; margin: 0 0 26px; }
+    .price-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .price-card { padding: 26px; }
+    .price-card.featured { background: rgba(250, 204, 21, 0.10); border-color: rgba(250, 204, 21, 0.38); }
+    .price-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .price-row h3 { margin: 0; font-size: 26px; }
+    .tag { background: var(--gold); color: #111827; border-radius: 999px; padding: 6px 10px; font-size: 11px; font-weight: 1000; }
+    .price { font-size: 38px; font-weight: 1000; color: var(--gold); margin: 14px 0 6px; }
+    .price-card p { color: var(--muted); min-height: 50px; }
+    ul { margin: 20px 0; padding: 0; list-style: none; }
+    li { color: var(--muted); margin: 10px 0; display: flex; gap: 9px; }
+
+    .lock { padding: 32px 0 60px; }
+    .lock-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    .lock-box { padding: 28px; }
+    .locked { border: 1px solid rgba(250,204,21,0.25); background: rgba(250,204,21,0.08); padding: 20px; border-radius: 22px; margin-top: 22px; }
+    .leadbox { padding: 28px; background: rgba(2,6,23,0.62); }
+    .leadbox .button, .leadbox button { width: 100%; margin-top: 12px; }
+
+    .pwa { padding: 0 0 60px; }
+    .pwa-card { padding: 24px; background: rgba(16,185,129,0.09); border-color: rgba(52,211,153,0.22); }
+    .code-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 22px; }
+    pre { overflow: auto; max-height: 360px; background: rgba(0,0,0,0.58); border-radius: 18px; padding: 18px; color: #d1d5db; font-size: 12px; white-space: pre-wrap; }
+    .code-title { color: var(--green); font-weight: 1000; }
+
+    footer { border-top: 1px solid var(--border); padding: 28px 0 36px; color: var(--faint); font-size: 14px; }
+
+    @media (max-width: 900px) {
+      .hero, .section-grid, .lock-grid, .code-grid { grid-template-columns: 1fr; }
+      .price-grid { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .topbar { position: static; }
+      .form-grid { grid-template-columns: 1fr; }
+      .hero { padding-top: 42px; }
+      button, .button { width: 100%; }
+      .buttons { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <div class="status"><span id="statusDot" class="dot"></span><span id="statusText">Online — reports can be generated live</span></div>
+      <button id="installBtn" class="ghost disabled" type="button">Install App</button>
     </div>
-  );
-}
 
-function Field({ label, value, onChange, placeholder, type = "text" }) {
-  return (
-    <div>
-      <label className="mb-2 block text-sm font-semibold text-slate-200">{label}</label>
-      <Input type={type} value={value} placeholder={placeholder} onChange={e => onChange(e.target.value)} className="rounded-2xl border-white/10 bg-slate-900 text-white" />
-    </div>
-  );
-}
+    <main>
+      <section class="hero">
+        <div>
+          <div class="pill">💰 AI Money Detector for Small Business</div>
+          <h1>Find the money your business is leaking every month.</h1>
+          <p>ProfitLeak AI scans your freelancer spend, admin work, lead response gaps, and support bottlenecks — then shows what AI can replace, automate, or reduce.</p>
+          <div class="buttons">
+            <a class="button primary" href="#scan">Start Free Scan ⚡</a>
+            <a class="button secondary" href="#pricing">View Pricing</a>
+          </div>
+          <p style="font-size:14px;margin-top:18px;color:var(--faint)">Built for owners, agencies, clinics, local services, creators, consultants, and operators.</p>
+        </div>
 
-function Metric({ label, value }) {
-  return (
-    <div className="rounded-2xl bg-slate-950/70 p-4">
-      <div className="text-sm text-slate-400">{label}</div>
-      <div className="mt-2 text-2xl font-black text-yellow-300">{value}</div>
-    </div>
-  );
-}
+        <div class="card preview">
+          <div class="card-head"><h2>Live Savings Preview</h2><span>✨</span></div>
+          <div class="metrics">
+            <div class="metric"><small>AI Score</small><strong id="previewScore">87/100</strong></div>
+            <div class="metric"><small>Monthly Leak</small><strong id="previewMonthly">$2,631</strong></div>
+            <div class="metric"><small>Annual Potential</small><strong id="previewAnnual">$31,572</strong></div>
+          </div>
+          <div class="ai-fix"><small>Top AI Fix</small><p id="previewFix">Install instant AI lead response and follow-up automation.</p></div>
+        </div>
+      </section>
+
+      <section id="scan" class="section-grid">
+        <div class="card scan-form">
+          <div class="section-title"><span>📋</span><h2>Run Your AI Money Scan</h2></div>
+          <div class="form-grid">
+            <div><label for="businessName">Business Name</label><input id="businessName" placeholder="Example: Windsor Dental Clinic" /></div>
+            <div><label for="industry">Industry</label><input id="industry" placeholder="Retail, clinic, agency, restaurant..." /></div>
+            <div><label for="monthlyRevenue">Monthly Revenue</label><input id="monthlyRevenue" type="number" value="25000" /></div>
+            <div><label for="freelancers">Monthly Freelancer Spend</label><input id="freelancers" type="number" value="1800" /></div>
+            <div><label for="adminHours">Admin Hours / Week</label><input id="adminHours" type="number" value="20" /></div>
+            <div><label for="leadHours">Lead Follow-up Hours / Week</label><input id="leadHours" type="number" value="10" /></div>
+            <div><label for="designSpend">Design Spend / Month</label><input id="designSpend" type="number" value="300" /></div>
+            <div><label for="copySpend">Copywriting Spend / Month</label><input id="copySpend" type="number" value="400" /></div>
+            <div><label for="supportHours">Support Hours / Week</label><input id="supportHours" type="number" value="12" /></div>
+            <div><label for="email">Email for Report</label><input id="email" type="email" placeholder="owner@business.com" /></div>
+            <div class="full"><label for="bottleneck">Biggest Bottleneck</label><textarea id="bottleneck">Slow lead follow-up and too much manual admin work</textarea></div>
+          </div>
+          <div class="buttons" style="margin-top:22px">
+            <button class="primary" type="button" id="generateBtn">Generate Money Report 🤖</button>
+            <button class="secondary" type="button" id="downloadBtn">Download Report ⬇</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="card result-card">
+            <h2 style="margin:0">Your AI Replacement Score</h2>
+            <div class="score" id="scoreNumber">87</div>
+            <div style="color:var(--muted)">out of 100</div>
+            <div class="bar"><span id="scoreBar"></span></div>
+            <div class="saving-line">Estimated monthly savings: <strong id="monthlySavings">$2,631</strong></div>
+          </div>
+
+          <div class="card fixes">
+            <h3 style="margin:0 0 14px;font-size:22px">Recommended AI Fixes</h3>
+            <div id="fixList"></div>
+            <div id="hintBox" style="margin-top:18px;border:1px solid var(--border);background:rgba(2,6,23,0.62);border-radius:18px;padding:15px;color:var(--faint);font-size:14px">Click “Generate Money Report” to simulate the customer experience.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="pricing" class="pricing">
+        <h2>Turn the scan into recurring revenue.</h2>
+        <p>The free scan creates the pain. The paid plan unlocks the full roadmap, downloads, rescans, and implementation guidance.</p>
+        <div class="price-grid">
+          <div class="card price-card">
+            <div class="price-row"><h3>Starter</h3></div>
+            <div class="price">$10.99/mo</div>
+            <p>For small businesses that want a quick AI savings scan.</p>
+            <ul><li>🚀 AI leak score</li><li>🚀 Monthly savings estimate</li><li>🚀 Basic roadmap</li><li>🚀 Tool recommendations</li></ul>
+            <a class="button primary" href="#lead">Start Monthly</a>
+          </div>
+          <div class="card price-card featured">
+            <div class="price-row"><h3>Pro</h3><span class="tag">BEST VALUE</span></div>
+            <div class="price">$79.99/yr</div>
+            <p>For owners who want the full money detector report.</p>
+            <ul><li>🚀 Full automation roadmap</li><li>🚀 Downloadable audit report</li><li>🚀 Priority action plan</li><li>🚀 Quarterly rescans</li></ul>
+            <a class="button primary" href="#lead">Unlock Pro</a>
+          </div>
+          <div class="card price-card">
+            <div class="price-row"><h3>Done-For-You</h3></div>
+            <div class="price">Custom</div>
+            <p>For businesses that want you to build the automations.</p>
+            <ul><li>🚀 Workflow buildout</li><li>🚀 CRM/email automation</li><li>🚀 AI chatbot setup</li><li>🚀 Implementation support</li></ul>
+            <a class="button primary" href="#lead">Book Buildout</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="lead" class="lock">
+        <div class="lock-grid">
+          <div class="card lock-box">
+            <h2>Subscription Lock Screen</h2>
+            <p>Use this section after the free scan. Show the customer the savings number, then lock the full roadmap behind the subscription.</p>
+            <div class="locked"><strong>🔒 Locked Pro Report</strong><p>Unlock your complete AI automation roadmap, tool stack, cost breakdown, implementation sequence, and downloadable PDF report.</p></div>
+          </div>
+          <div class="card leadbox">
+            <h3 style="margin-top:0;font-size:24px">Lead Capture CTA</h3>
+            <p style="color:var(--faint)">Connect Stripe, PayPal, Lemon Squeezy, Gumroad, or Memberstack here.</p>
+            <input id="leadEmail" type="email" placeholder="Email address" />
+            <button class="primary" type="button" id="emailBtn">Email My Free Scan ✉</button>
+            <a class="button secondary" href="https://victoryhour.gumroad.com/" target="_blank" rel="noopener">Upgrade to Pro — $79.99/year</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="pwa">
+        <div class="card pwa-card">
+          <h2>PWA Deployment Files</h2>
+          <p>Add these files beside your index.html on GitHub Pages. They make ProfitLeak AI installable and support offline access.</p>
+          <div class="code-grid">
+            <div><div class="code-title">manifest.json</div><pre>{
+  "name": "ProfitLeak AI Money Detector",
+  "short_name": "ProfitLeak AI",
+  "description": "Find business money leaks and AI automation opportunities.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}</pre></div>
+            <div><div class="code-title">service-worker.js</div><pre>const CACHE_NAME = "profitleak-ai-v1";
+const APP_SHELL = ["./", "index.html", "manifest.json"];
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))));
+  self.clients.claim();
+});
+
+self.addEventListener("fetch", (event) => {
+  if (event.request.method !== "GET") return;
+  event.respondWith(fetch(event.request).then((response) => {
+    const clone = response.clone();
+    caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+    return response;
+  }).catch(() => caches.match(event.request).then((cached) => cached || caches.match("index.html"))));
+});</pre></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <strong>ProfitLeak AI™</strong> — Built by Victory Hour Multimedia. 10% pledged to fight hunger.
+    </footer>
+  </div>
+
+  <script>
+    const fields = ["businessName", "industry", "monthlyRevenue", "freelancers", "adminHours", "leadHours", "designSpend", "copySpend", "supportHours", "email", "bottleneck"];
+    let submitted = false;
+    let deferredPrompt = null;
+
+    function money(n) {
+      return "$" + Math.round(n).toLocaleString();
+    }
+
+    function val(id) {
+      const el = document.getElementById(id);
+      return el ? el.value : "";
+    }
+
+    function num(id) {
+      return Number(val(id) || 0);
+    }
+
+    function calculate() {
+      const freelancerSpend = num("freelancers");
+      const design = num("designSpend");
+      const copy = num("copySpend");
+      const admin = num("adminHours");
+      const lead = num("leadHours");
+      const support = num("supportHours");
+      const hourlyValue = 35;
+      const laborWaste = (admin + lead + support) * hourlyValue * 4.33;
+      const directWaste = freelancerSpend + design + copy;
+      const estimatedSavings = Math.round((laborWaste * 0.55) + (directWaste * 0.45));
+      const annualSavings = estimatedSavings * 12;
+      const score = Math.min(97, Math.max(18, Math.round(35 + Math.min(25, freelancerSpend / 100) + Math.min(18, admin / 2) + Math.min(12, lead) + Math.min(10, support / 2))));
+      const fixes = [];
+      if (lead >= 5) fixes.push("Install instant AI lead response and follow-up automation.");
+      if (admin >= 8) fixes.push("Replace repetitive admin work with AI forms, summaries, and document generation.");
+      if (copy >= 250) fixes.push("Move routine copywriting into an AI content workflow with human approval.");
+      if (design >= 200) fixes.push("Use Canva AI templates for weekly social posts, flyers, and promo assets.");
+      if (support >= 6) fixes.push("Deploy AI customer support triage for FAQs, callbacks, and intake requests.");
+      if (!fixes.length) fixes.push("Start with one simple automation: AI intake form + automated email response.");
+      return { score, estimatedSavings, annualSavings, fixes };
+    }
+
+    function render() {
+      const r = calculate();
+      document.getElementById("previewScore").textContent = r.score + "/100";
+      document.getElementById("previewMonthly").textContent = money(r.estimatedSavings);
+      document.getElementById("previewAnnual").textContent = money(r.annualSavings);
+      document.getElementById("previewFix").textContent = r.fixes[0];
+      document.getElementById("scoreNumber").textContent = r.score;
+      document.getElementById("scoreBar").style.width = r.score + "%";
+      document.getElementById("monthlySavings").textContent = money(r.estimatedSavings);
+      document.getElementById("fixList").innerHTML = r.fixes.map(f => `<div class="fix-item"><span class="check">✓</span><span>${f}</span></div>`).join("");
+      document.getElementById("hintBox").style.display = submitted ? "none" : "block";
+      localStorage.setItem("profitleak-scan", JSON.stringify(Object.fromEntries(fields.map(id => [id, val(id)]))));
+    }
+
+    function restore() {
+      try {
+        const saved = JSON.parse(localStorage.getItem("profitleak-scan") || "{}");
+        fields.forEach(id => {
+          if (saved[id] !== undefined && document.getElementById(id)) document.getElementById(id).value = saved[id];
+        });
+      } catch (e) {}
+    }
+
+    function downloadReport() {
+      const r = calculate();
+      const report = `ProfitLeak AI Report\n\nBusiness: ${val("businessName") || "Unnamed Business"}\nIndustry: ${val("industry") || "Not specified"}\n\nAI Replacement Score: ${r.score}/100\nEstimated Monthly Savings: ${money(r.estimatedSavings)}\nEstimated Annual Savings: ${money(r.annualSavings)}\n\nTop Bottleneck:\n${val("bottleneck")}\n\nRecommended Fixes:\n${r.fixes.map((f, i) => `${i + 1}. ${f}`).join("\n")}\n\nNext Step: Upgrade to unlock the full implementation plan.`;
+      const blob = new Blob([report], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "profitleak-ai-report.txt";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function updateOnlineStatus() {
+      const online = navigator.onLine;
+      document.getElementById("statusDot").classList.toggle("offline", !online);
+      document.getElementById("statusText").textContent = online ? "Online — reports can be generated live" : "Offline mode — saved scans still work";
+    }
+
+    window.addEventListener("beforeinstallprompt", (event) => {
+      event.preventDefault();
+      deferredPrompt = event;
+      document.getElementById("installBtn").classList.remove("disabled");
+    });
+
+    document.getElementById("installBtn").addEventListener("click", async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      document.getElementById("installBtn").classList.add("disabled");
+    });
+
+    document.getElementById("generateBtn").addEventListener("click", () => {
+      submitted = true;
+      render();
+      document.getElementById("leadEmail").value = val("email");
+      alert("Money report generated. Upgrade CTA is now ready.");
+    });
+
+    document.getElementById("downloadBtn").addEventListener("click", downloadReport);
+    document.getElementById("emailBtn").addEventListener("click", () => alert("Connect this button to your email tool, CRM, or backend API."));
+    fields.forEach(id => document.getElementById(id).addEventListener("input", render));
+    window.addEventListener("online", updateOnlineStatus);
+    window.addEventListener("offline", updateOnlineStatus);
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("service-worker.js").catch(() => {}));
+    }
+
+    restore();
+    updateOnlineStatus();
+    render();
+  </script>
+</body>
+</html>
