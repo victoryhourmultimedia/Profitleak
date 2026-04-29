@@ -1,0 +1,290 @@
+import React, { useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { BadgeDollarSign, Bot, ClipboardCheck, Download, Lock, Mail, Rocket, ShieldCheck, Sparkles, Zap } from "lucide-react";
+
+export default function ProfitLeakAI() {
+  const [form, setForm] = useState({
+    businessName: "",
+    industry: "",
+    monthlyRevenue: "25000",
+    freelancers: "1800",
+    adminHours: "20",
+    leadHours: "10",
+    designSpend: "300",
+    copySpend: "400",
+    supportHours: "12",
+    bottleneck: "Slow lead follow-up and too much manual admin work",
+    email: ""
+  });
+
+  const [submitted, setSubmitted] = useState(false);
+
+  const update = (key, value) => setForm(prev => ({ ...prev, [key]: value }));
+
+  const results = useMemo(() => {
+    const freelancerSpend = Number(form.freelancers || 0);
+    const design = Number(form.designSpend || 0);
+    const copy = Number(form.copySpend || 0);
+    const admin = Number(form.adminHours || 0);
+    const lead = Number(form.leadHours || 0);
+    const support = Number(form.supportHours || 0);
+
+    const hourlyValue = 35;
+    const laborWaste = (admin + lead + support) * hourlyValue * 4.33;
+    const directWaste = freelancerSpend + design + copy;
+    const estimatedSavings = Math.round((laborWaste * 0.55) + (directWaste * 0.45));
+    const annualSavings = estimatedSavings * 12;
+
+    const score = Math.min(97, Math.max(18, Math.round(
+      35 +
+      Math.min(25, freelancerSpend / 100) +
+      Math.min(18, admin / 2) +
+      Math.min(12, lead) +
+      Math.min(10, support / 2)
+    )));
+
+    const fixes = [];
+    if (lead >= 5) fixes.push("Install instant AI lead response and follow-up automation.");
+    if (admin >= 8) fixes.push("Replace repetitive admin work with AI forms, summaries, and document generation.");
+    if (copy >= 250) fixes.push("Move routine copywriting into an AI content workflow with human approval.");
+    if (design >= 200) fixes.push("Use Canva AI templates for weekly social posts, flyers, and promo assets.");
+    if (support >= 6) fixes.push("Deploy AI customer support triage for FAQs, callbacks, and intake requests.");
+    if (fixes.length === 0) fixes.push("Start with one simple automation: AI intake form + automated email response.");
+
+    return { estimatedSavings, annualSavings, score, fixes };
+  }, [form]);
+
+  const tierCopy = [
+    {
+      name: "Starter",
+      price: "$10.99/mo",
+      desc: "For small businesses that want a quick AI savings scan.",
+      items: ["AI leak score", "Monthly savings estimate", "Basic roadmap", "Tool recommendations"]
+    },
+    {
+      name: "Pro",
+      price: "$79.99/yr",
+      desc: "For owners who want the full money detector report.",
+      items: ["Full automation roadmap", "Downloadable audit report", "Priority action plan", "Quarterly rescans"]
+    },
+    {
+      name: "Done-For-You",
+      price: "Custom",
+      desc: "For businesses that want you to build the automations.",
+      items: ["Workflow buildout", "CRM/email automation", "AI chatbot setup", "Implementation support"]
+    }
+  ];
+
+  function downloadReport() {
+    const report = `ProfitLeak AI Report\n\nBusiness: ${form.businessName || "Unnamed Business"}\nIndustry: ${form.industry || "Not specified"}\n\nAI Replacement Score: ${results.score}/100\nEstimated Monthly Savings: $${results.estimatedSavings.toLocaleString()}\nEstimated Annual Savings: $${results.annualSavings.toLocaleString()}\n\nTop Bottleneck:\n${form.bottleneck}\n\nRecommended Fixes:\n${results.fixes.map((f, i) => `${i + 1}. ${f}`).join("\n")}\n\nNext Step: Book an AI audit or upgrade to unlock the full implementation plan.`;
+    const blob = new Blob([report], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "profitleak-ai-report.txt";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-white">
+      <section className="relative overflow-hidden px-6 py-16 md:px-12">
+        <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top_right,_#facc15,_transparent_30%),radial-gradient(circle_at_bottom_left,_#2563eb,_transparent_35%)]" />
+        <div className="relative mx-auto grid max-w-7xl gap-10 md:grid-cols-2 md:items-center">
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-yellow-400/30 bg-yellow-400/10 px-4 py-2 text-sm text-yellow-200">
+              <BadgeDollarSign size={16} /> AI Money Detector for Small Business
+            </div>
+            <h1 className="text-4xl font-black tracking-tight md:text-6xl">
+              Find the money your business is leaking every month.
+            </h1>
+            <p className="mt-6 max-w-xl text-lg text-slate-300">
+              ProfitLeak AI scans your freelancer spend, admin work, lead response gaps, and support bottlenecks — then shows what AI can replace, automate, or reduce.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button className="rounded-2xl px-6 py-6 text-base font-bold">
+                Start Free Scan <Zap className="ml-2" size={18} />
+              </Button>
+              <Button variant="outline" className="rounded-2xl border-white/20 bg-white/5 px-6 py-6 text-base text-white hover:bg-white/10">
+                View Pricing
+              </Button>
+            </div>
+            <p className="mt-5 text-sm text-slate-400">Built for owners, agencies, clinics, local services, creators, consultants, and operators.</p>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, delay: 0.1 }}>
+            <Card className="rounded-3xl border-white/10 bg-white/10 shadow-2xl backdrop-blur">
+              <CardContent className="p-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-xl font-bold text-white">Live Savings Preview</h2>
+                  <Sparkles className="text-yellow-300" />
+                </div>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <Metric label="AI Score" value={`${results.score}/100`} />
+                  <Metric label="Monthly Leak" value={`$${results.estimatedSavings.toLocaleString()}`} />
+                  <Metric label="Annual Potential" value={`$${results.annualSavings.toLocaleString()}`} />
+                </div>
+                <div className="mt-6 rounded-2xl bg-slate-950/60 p-5">
+                  <p className="text-sm font-semibold text-yellow-200">Top AI Fix</p>
+                  <p className="mt-2 text-slate-200">{results.fixes[0]}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </section>
+
+      <section className="mx-auto grid max-w-7xl gap-8 px-6 py-10 md:grid-cols-[1.05fr_0.95fr] md:px-12">
+        <Card className="rounded-3xl border-white/10 bg-white/[0.06]">
+          <CardContent className="p-6 md:p-8">
+            <div className="mb-6 flex items-center gap-3">
+              <ClipboardCheck className="text-yellow-300" />
+              <h2 className="text-2xl font-black text-white">Run Your AI Money Scan</h2>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="Business Name" value={form.businessName} onChange={v => update("businessName", v)} placeholder="Example: Windsor Dental Clinic" />
+              <Field label="Industry" value={form.industry} onChange={v => update("industry", v)} placeholder="Retail, clinic, agency, restaurant..." />
+              <Field label="Monthly Revenue" value={form.monthlyRevenue} onChange={v => update("monthlyRevenue", v)} type="number" />
+              <Field label="Monthly Freelancer Spend" value={form.freelancers} onChange={v => update("freelancers", v)} type="number" />
+              <Field label="Admin Hours / Week" value={form.adminHours} onChange={v => update("adminHours", v)} type="number" />
+              <Field label="Lead Follow-up Hours / Week" value={form.leadHours} onChange={v => update("leadHours", v)} type="number" />
+              <Field label="Design Spend / Month" value={form.designSpend} onChange={v => update("designSpend", v)} type="number" />
+              <Field label="Copywriting Spend / Month" value={form.copySpend} onChange={v => update("copySpend", v)} type="number" />
+              <Field label="Support Hours / Week" value={form.supportHours} onChange={v => update("supportHours", v)} type="number" />
+              <Field label="Email for Report" value={form.email} onChange={v => update("email", v)} placeholder="owner@business.com" />
+            </div>
+
+            <div className="mt-4">
+              <label className="mb-2 block text-sm font-semibold text-slate-200">Biggest Bottleneck</label>
+              <Textarea value={form.bottleneck} onChange={e => update("bottleneck", e.target.value)} className="min-h-28 rounded-2xl border-white/10 bg-slate-900 text-white" />
+            </div>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button onClick={() => setSubmitted(true)} className="rounded-2xl px-6 py-6 font-bold">
+                Generate Money Report <Bot className="ml-2" size={18} />
+              </Button>
+              <Button onClick={downloadReport} variant="outline" className="rounded-2xl border-white/20 bg-white/5 px-6 py-6 text-white hover:bg-white/10">
+                Download Report <Download className="ml-2" size={18} />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="space-y-6">
+          <Card className="rounded-3xl border-yellow-400/20 bg-yellow-400/10">
+            <CardContent className="p-6 md:p-8">
+              <h2 className="text-2xl font-black text-white">Your AI Replacement Score</h2>
+              <div className="mt-5 text-7xl font-black text-yellow-300">{results.score}</div>
+              <p className="mt-2 text-slate-300">out of 100</p>
+              <div className="mt-6 h-4 overflow-hidden rounded-full bg-slate-800">
+                <div className="h-full rounded-full bg-yellow-300" style={{ width: `${results.score}%` }} />
+              </div>
+              <p className="mt-5 text-slate-200">
+                Estimated monthly savings: <span className="font-black text-yellow-300">${results.estimatedSavings.toLocaleString()}</span>
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-3xl border-white/10 bg-white/[0.06]">
+            <CardContent className="p-6 md:p-8">
+              <h3 className="text-xl font-black text-white">Recommended AI Fixes</h3>
+              <div className="mt-5 space-y-3">
+                {results.fixes.map((fix, i) => (
+                  <div key={i} className="flex gap-3 rounded-2xl bg-slate-900/80 p-4 text-slate-200">
+                    <ShieldCheck className="mt-0.5 shrink-0 text-yellow-300" size={18} />
+                    <span>{fix}</span>
+                  </div>
+                ))}
+              </div>
+              {!submitted && (
+                <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/60 p-4 text-sm text-slate-400">
+                  Click “Generate Money Report” to simulate the customer experience.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 py-12 md:px-12">
+        <div className="mb-8 max-w-3xl">
+          <h2 className="text-3xl font-black md:text-4xl">Turn the scan into recurring revenue.</h2>
+          <p className="mt-3 text-slate-300">The free scan creates the pain. The paid plan unlocks the full roadmap, downloads, rescans, and implementation guidance.</p>
+        </div>
+        <div className="grid gap-5 md:grid-cols-3">
+          {tierCopy.map((tier, i) => (
+            <Card key={tier.name} className={`rounded-3xl ${i === 1 ? "border-yellow-400/40 bg-yellow-400/10" : "border-white/10 bg-white/[0.06]"}`}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-2xl font-black text-white">{tier.name}</h3>
+                  {i === 1 && <span className="rounded-full bg-yellow-300 px-3 py-1 text-xs font-black text-slate-950">BEST VALUE</span>}
+                </div>
+                <div className="mt-4 text-4xl font-black text-yellow-300">{tier.price}</div>
+                <p className="mt-3 min-h-12 text-slate-300">{tier.desc}</p>
+                <ul className="mt-5 space-y-3 text-sm text-slate-200">
+                  {tier.items.map(item => (
+                    <li key={item} className="flex gap-2"><Rocket size={16} className="text-yellow-300" /> {item}</li>
+                  ))}
+                </ul>
+                <Button className="mt-6 w-full rounded-2xl py-6 font-bold">
+                  {i === 0 ? "Start Monthly" : i === 1 ? "Unlock Pro" : "Book Buildout"}
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 pb-16 md:px-12">
+        <Card className="rounded-3xl border-white/10 bg-white/[0.06]">
+          <CardContent className="grid gap-8 p-6 md:grid-cols-2 md:p-8">
+            <div>
+              <h2 className="text-3xl font-black text-white">Subscription Lock Screen</h2>
+              <p className="mt-3 text-slate-300">Use this section after the free scan. Show the customer the savings number, then lock the full roadmap behind the subscription.</p>
+              <div className="mt-6 rounded-2xl border border-yellow-400/20 bg-yellow-400/10 p-5">
+                <div className="flex items-center gap-3 text-yellow-200"><Lock /> Locked Pro Report</div>
+                <p className="mt-3 text-slate-200">Unlock your complete AI automation roadmap, tool stack, cost breakdown, implementation sequence, and downloadable PDF report.</p>
+              </div>
+            </div>
+            <div className="rounded-3xl bg-slate-950/70 p-6">
+              <h3 className="text-xl font-black text-white">Lead Capture CTA</h3>
+              <p className="mt-2 text-sm text-slate-400">This is where Stripe, PayPal, Lemon Squeezy, Gumroad, or Memberstack can connect.</p>
+              <div className="mt-5 space-y-3">
+                <Input placeholder="Email address" className="rounded-2xl border-white/10 bg-slate-900 text-white" />
+                <Button className="w-full rounded-2xl py-6 font-bold">
+                  Email My Free Scan <Mail className="ml-2" size={18} />
+                </Button>
+                <Button variant="outline" className="w-full rounded-2xl border-white/20 bg-white/5 py-6 text-white hover:bg-white/10">
+                  Upgrade to Pro — $79.99/year
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+    </div>
+  );
+}
+
+function Field({ label, value, onChange, placeholder, type = "text" }) {
+  return (
+    <div>
+      <label className="mb-2 block text-sm font-semibold text-slate-200">{label}</label>
+      <Input type={type} value={value} placeholder={placeholder} onChange={e => onChange(e.target.value)} className="rounded-2xl border-white/10 bg-slate-900 text-white" />
+    </div>
+  );
+}
+
+function Metric({ label, value }) {
+  return (
+    <div className="rounded-2xl bg-slate-950/70 p-4">
+      <div className="text-sm text-slate-400">{label}</div>
+      <div className="mt-2 text-2xl font-black text-yellow-300">{value}</div>
+    </div>
+  );
+}
